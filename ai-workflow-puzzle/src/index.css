@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500;
+  }
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-indigo-500;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-gray-600 hover:bg-gray-100 focus:ring-gray-500;
+  }
+  .input {
+    @apply block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+  }
+  .panel {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-4;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.gray.300') transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.gray.300');
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.gray.400');
+  }
+}
+
+.react-flow__node-input, .react-flow__node-output {
+  border-radius: 8px !important;
+}
+
+.react-flow__handle {
+  width: 12px !important;
+  height: 12px !important;
+  border: 2px solid white !important;
+}
+
+.react-flow__handle-connecting {
+  background-color: #6366f1 !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2px !important;
+}
+
+.node-label {
+  @apply font-medium text-sm text-gray-900;
+}
+
+.node-icon {
+  @apply text-2xl;
+}
+
+.node-category-badge {
+  @apply px-2 py-0.5 text-xs font-medium rounded-full;
+}
+
+.category-core {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.category-reliability {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.category-human-control {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge {
+  @apply px-2 py-1 text-xs font-medium rounded-full;
+}
+
+.status-pending { @apply bg-gray-100 text-gray-700; }
+.status-running { @apply bg-blue-100 text-blue-800 animate-pulse; }
+.status-completed { @apply bg-green-100 text-green-800; }
+.status-failed { @apply bg-red-100 text-red-800; }
+.status-paused { @apply bg-yellow-100 text-yellow-800; }
+.status-retrying { @apply bg-orange-100 text-orange-800 animate-pulse; }
+.status-recovered { @apply bg-purple-100 text-purple-800; }
+.status-safely-stopped { @apply bg-gray-100 text-gray-600; }
+.status-waiting-human { @apply bg-yellow-100 text-yellow-800 animate-pulse; }
+
+.difficulty-badge {
+  @apply px-3 py-1 text-xs font-semibold rounded-full;
+}
+
+.difficulty-beginner { @apply bg-green-100 text-green-800; }
+.difficulty-intermediate { @apply bg-blue-100 text-blue-800; }
+.difficulty-advanced { @apply bg-purple-100 text-purple-800; }
+
+.code-editor {
+  @apply font-mono text-sm bg-gray-900 text-green-300 p-3 rounded-lg overflow-auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.json-editor {
+  @apply font-mono text-sm bg-gray-100 text-gray-900 p-3 rounded-lg overflow-auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.step-trace-item {
+  @apply border-l-2 border-gray-200 pl-4 pb-4 last:border-l-transparent last:pb-0;
+}
+
+.step-trace-item.current {
+  @apply border-l-indigo-500;
+}
+
+.step-trace-item.failed {
+  @apply border-l-red-500;
+}
+
+.step-trace-item.completed {
+  @apply border-l-green-500;
+}
+
+.step-trace-item.retrying {
+  @apply border-l-orange-500;
+}
+
+.step-trace-item.recovered {
+  @apply border-l-purple-500;
+}
+
+.step-trace-item.waiting-human {
+  @apply border-l-yellow-500;
+}
