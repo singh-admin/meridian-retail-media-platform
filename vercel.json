@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd ai-workflow-puzzle && npm install && npm run build",
+  "outputDirectory": "ai-workflow-puzzle/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
