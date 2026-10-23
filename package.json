@@ -1,0 +1,26 @@
+{
+  "name": "meridian-airport-retail-media-platform",
+  "version": "1.0.0",
+  "description": "Airport Retail Media Platform: Ads and promotions on airport screens triggered by live flight and passenger-flow data (Topcoder Challenge)",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "test": "npm --prefix backend test",
+    "dev": "node -e \"const { spawn } = require('child_process'); spawn('npm', ['--prefix', 'backend', 'run', 'dev'], { stdio: 'inherit' }); spawn('npm', ['--prefix', 'frontend', 'run', 'dev'], { stdio: 'inherit' });\""
+  },
+  "keywords": [
+    "topcoder",
+    "retail-media",
+    "airport-advertising",
+    "aodb",
+    "aidx",
+    "acris",
+    "digital-signage",
+    "audience-matching",
+    "anti-hallucination"
+  ],
+  "author": "Topcoder Submitter",
+  "license": "UNLICENSED"
+}
