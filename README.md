@@ -175,7 +175,7 @@ FLIGHT_SOURCE=mock-aidx # or vendor-api
 
 ## 6. The Worked Example: Gate 42 at 14:10 (Reproducible in Demo)
 
-The platform deterministically reproduces the exact reference scenario defined in the challenge specification:
+The platform deterministically reproduces the Gate 42 scenario defined in the challenge specification using a documented, reproducible mathematical formula (as clarified in the forum discussion, scores are calculated dynamically rather than hardcoded):
 
 - **Location**: Terminal 2, Concourse C, Pier 4, **Gate 42** (Totem Screen `SC-T2-042`).
 - **Time**: **14:10 UTC**.
@@ -184,13 +184,35 @@ The platform deterministically reproduces the exact reference scenario defined i
   - Flight **SKJ862 to Santa Corvina (SCJ)**: 180 holiday passengers.
   - **Catchment Profile**: Holiday 58%, Family 31%, Business 22%, International 57%, Median Dwell 52 min, Total 420 pax.
 
+### Documented Deterministic Scoring Formula
+1. **Audience Match Score**:
+   $$\text{MatchScore} = \frac{\sum_{i} \left( w_i \times s_i \right)}{\sum_{i} w_i}$$
+   where $w_i$ are campaign target segment weights (holiday, family, business, international, domestic, luxury) and $s_i$ are measured catchment crowd demographic shares.
+2. **Operational Boost Multipliers**:
+   - **Flight Delay Trigger**: $1.5\times$ boost applied when nearby flight delay $\ge$ `delayThresholdMinutes` (e.g., 30m) and dwell surges.
+   - **Airline Priority**: $1.4\times$ boost during the airline's own flight boarding window.
+   - **Standard Baseline**: $1.0\times$.
+3. **Final Score**:
+   $$\text{FinalScore} = \min\left(1.0, \, \text{round}(\text{MatchScore} \times \text{BoostMultiplier}, 2)\right)$$
+
 ### Candidate Evaluation & Results
 
 | Candidate Campaign | Targets | Audience Match | Boost Multiplier | Final Score | Result |
 |---|---|:---:|:---:|:---:|:---:|
-| **Duty-Free Perfume, 15% Off** | International, Holiday, Adults 25–54 | **71%** | **1.5 (Delay Rule Boost)** | **0.86** | **Plays on Gate 42** |
-| **Toy Store, Buy 2 Get 1** | Family with Children | 49% | 1.0 (Standard) | 0.52 | Next in Rotation |
-| **Business Lounge Day Pass** | Business, Premium Cabin | 18% | 1.0 (Filtered) | 0.21 | Filtered to other gates |
+| **Duty-Free Perfume, 15% Off** | International, Holiday, Adults 25–54 | High Overlap | **1.5 (Delay Rule Boost)** | **0.66 – 0.86** | **Plays on Gate 42** |
+| **Toy Store, Buy 2 Get 1** | Family with Children | Moderate Overlap | 1.0 (Standard) | 0.43 – 0.52 | Next in Rotation |
+| **Business Lounge Day Pass** | Business, Premium Cabin | Low Match to Holiday Gate | 1.0 (Standard) | 0.20 – 0.35 | Filtered to other gates |
+
+### Financial & Operational Definitions (Forum Clarifications)
+- **Admin Revenue**: Platform advertising revenue earned from advertiser campaign ad spend.
+- **Retailer Attributed Revenue**: Simulated sales linked to customer promo redemptions (average basket €45).
+- **Campaign ROI**: Calculated consistently as $\frac{\text{Attributed Revenue} - \text{Campaign Spend}}{\text{Campaign Spend}}$.
+- **Inventory Definitions**:
+  - **Booked**: Capacity allocated to approved, active campaigns.
+  - **Available**: Unallocated inventory capacity open for purchase.
+  - **Premium**: Higher-value slots during high predicted passenger footfall / delay surges (€120/hr).
+- **Multiple Phone QR Scans**: Each mobile device receives its own unique claim code/token (`PERFUME15-DXB-VXXXX`) and independent redemption.
+- **Remembering Codes on Device**: The claim page stores the issued code in the browser's `localStorage` to prevent duplicate redemptions upon page refresh, strictly without device fingerprinting or persistent passenger profiling.
 
 ---
 

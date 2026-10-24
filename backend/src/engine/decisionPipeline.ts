@@ -59,11 +59,6 @@ export class DecisionPipeline {
     const hasDelayedNearbyFlight = crowd.nearbyFlights.some(f => f.status === 'DEL' || f.delayMinutes >= 30);
     const candidates: DecisionCandidate[] = [];
 
-    // Check for Worked Example: Gate 42 at 14:10
-    const isGate42WorkedExample =
-      (screen.screenId === 'SC-T2-042' || screen.screenId === 'SC-T2-043' || screen.nearestGates.includes('42')) &&
-      simulatedTime.includes('14:');
-
     // Step 2 & 3: Filter & Score Campaigns
     for (const campaign of campaigns) {
       if (campaign.status !== 'ACTIVE') continue;
@@ -142,62 +137,57 @@ export class DecisionPipeline {
         continue;
       }
 
-      // Step 3: Compute Audience Match Score (0.0 to 1.0)
-      let matchScore = 0;
+      // Step 3: Compute Audience Match Score (0.0 to 1.0) via Deterministic Documented Formula
+      // Formula: matchScore = (Sum of weight_i * crowdShare_i) / Sum of weight_i
+      // Evaluates alignment across Holiday, Family, Business, International, Domestic, and Luxury/Cabin tiers.
+      const weights = campaign.segmentWeights;
+      let weightedSum = 0;
+      let targetWeightTotal = 0;
+
+      if (weights.holiday) {
+        weightedSum += weights.holiday * (crowd.tripPurposes.holiday || 0);
+        targetWeightTotal += weights.holiday;
+      }
+      if (weights.family) {
+        weightedSum += weights.family * (crowd.tripPurposes.family || 0);
+        targetWeightTotal += weights.family;
+      }
+      if (weights.business) {
+        weightedSum += weights.business * (crowd.tripPurposes.business || 0);
+        targetWeightTotal += weights.business;
+      }
+      if (weights.international) {
+        weightedSum += weights.international * (crowd.internationalShare || 0);
+        targetWeightTotal += weights.international;
+      }
+      if (weights.domestic) {
+        weightedSum += weights.domestic * (crowd.domesticShare || 0);
+        targetWeightTotal += weights.domestic;
+      }
+      if (weights.luxury) {
+        weightedSum += weights.luxury * ((crowd.cabinMix.business || 0) + (crowd.cabinMix.premium_economy || 0));
+        targetWeightTotal += weights.luxury;
+      }
+
+      const matchScore = Number(
+        Math.min(0.95, Math.max(0.10, targetWeightTotal > 0 ? weightedSum / targetWeightTotal : 0.30)).toFixed(2)
+      );
+
+      // Operational Boost Rules:
       let boostMultiplier = 1.0;
       let boostReason = 'Standard rotation';
-      let finalScore = 0;
 
-      if (isGate42WorkedExample) {
-        if (campaign.campaignId === 'CAMP-DUTYFREE-PERFUME') {
-          matchScore = 0.71;
-          boostMultiplier = 1.5;
-          boostReason = 'delay rule (+45m dwell surge)';
-          finalScore = 0.86;
-        } else if (campaign.campaignId === 'CAMP-TOYSTORE-B2G1') {
-          matchScore = 0.49;
-          boostMultiplier = 1.0;
-          boostReason = 'Standard priority';
-          finalScore = 0.52;
-        } else if (campaign.campaignId === 'CAMP-LOUNGE-DAYPASS') {
-          matchScore = 0.18;
-          boostMultiplier = 1.0;
-          boostReason = 'Filtered to other gates';
-          finalScore = 0.21;
-        } else {
-          matchScore = 0.10;
-          boostMultiplier = 1.0;
-          boostReason = 'Low target fit';
-          finalScore = 0.10;
-        }
-      } else {
-        // Weighted demographic alignment
-        const weights = campaign.segmentWeights;
-        const totalWeight = weights.holiday + weights.family + weights.business + weights.international + weights.domestic + weights.luxury || 1;
-        const dotProduct =
-          weights.holiday * crowd.tripPurposes.holiday +
-          weights.family * crowd.tripPurposes.family +
-          weights.business * crowd.tripPurposes.business +
-          weights.international * crowd.internationalShare +
-          weights.domestic * crowd.domesticShare +
-          weights.luxury * crowd.cabinMix.business;
-        matchScore = Number(Math.min(1.0, Math.max(0.1, dotProduct / (totalWeight * 0.4))).toFixed(2));
-
-        // Delay rule trigger check
-        if (campaign.triggers.delayThresholdMinutes && hasDelayedNearbyFlight) {
-          boostMultiplier = 1.5;
-          boostReason = 'Delayed flight trigger active (+45m dwell surge)';
-        }
-
-        // Boarding window airline priority
-        const isAirlineSponsoringFlight = crowd.nearbyFlights.some(f => f.airlineIata === adv?.name);
-        if (isAirlineSponsoringFlight) {
-          boostMultiplier = Math.max(boostMultiplier, 1.4);
-          boostReason = 'Airline boarding window priority';
-        }
-
-        finalScore = Number((matchScore * boostMultiplier).toFixed(2));
+      // 1. Flight Delay Operational Trigger Boost (e.g. 1.5x surge when dwell spikes past threshold)
+      if (campaign.triggers?.delayThresholdMinutes && hasDelayedNearbyFlight) {
+        boostMultiplier = 1.5;
+        boostReason = `Delay rule active (+${crowd.dwellMinutes}m dwell surge)`;
+      } else if (campaign.triggers?.boardingWindowOnly && crowd.nearbyFlights.some(f => f.airlineIata === adv?.name)) {
+        // 2. Airline Boarding Window Priority Boost (1.4x)
+        boostMultiplier = 1.4;
+        boostReason = 'Airline boarding window priority';
       }
+
+      const finalScore = Number(Math.min(1.0, matchScore * boostMultiplier).toFixed(2));
 
       candidates.push({
         campaignId: campaign.campaignId,

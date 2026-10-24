@@ -14,10 +14,14 @@ adminRouter.get('/overview', (_req: Request, res: Response) => {
   const campaigns = store.getCampaigns();
   const activeCampaigns = campaigns.filter(c => c.status === 'ACTIVE').length;
 
-  let totalRevenue = 0;
+  // Platform ad revenue (sum of advertiser campaign ad spend)
+  let platformAdRevenue = 0;
+  for (const c of campaigns) {
+    platformAdRevenue += c.budget.spentBudget;
+  }
+
   let totalImpressions = 0;
   for (const outlet of store.getOutlets()) {
-    totalRevenue += outlet.currentRevenue;
     totalImpressions += outlet.todayImpressions;
   }
 
@@ -31,7 +35,7 @@ adminRouter.get('/overview', (_req: Request, res: Response) => {
       onlineScreens: onlineCount,
       adPlaysToday: Math.round(totalImpressions * 0.82),
       impressionsToday: totalImpressions,
-      revenueTodayEur: Math.round(totalRevenue),
+      revenueTodayEur: Math.round(platformAdRevenue),
       activeCampaigns,
       averageScreenLatencyMs: 16.4,
       openIncidents

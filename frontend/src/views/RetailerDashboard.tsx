@@ -47,6 +47,24 @@ export const RetailerDashboard: React.FC<RetailerDashboardProps> = ({ outletId, 
   const [aiGenerating, setAiGenerating] = useState(false);
   const [generatedCreative, setGeneratedCreative] = useState<any>(null);
 
+  // Smart Recommendations State (WOW Feature #5)
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
+
+  const handleLoadRecommendations = async () => {
+    setLoadingRecommendations(true);
+    try {
+      const res = await api.recommendSlots('CAMP-DUTYFREE-PERFUME');
+      if (res.recommendations) {
+        setRecommendations(res.recommendations);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
   const loadData = async () => {
     try {
       const [dash, flow, camps, prms] = await Promise.all([
@@ -59,6 +77,7 @@ export const RetailerDashboard: React.FC<RetailerDashboardProps> = ({ outletId, 
       setPassengerFlow(flow);
       setCampaigns(camps);
       setPromos(prms);
+      handleLoadRecommendations();
     } catch (e) {
       console.error(e);
     }
@@ -480,6 +499,51 @@ export const RetailerDashboard: React.FC<RetailerDashboardProps> = ({ outletId, 
               <span className="font-bold text-slate-300">Targeting Gate 42 Catchment:</span>
               <div>• Crowd Profile: 58% Holiday, 31% Family, 22% Business</div>
               <div>• Flight Trigger: +45m Delay on Dubai route triggers 1.5x boost</div>
+            </div>
+
+            {/* Smart AI Recommendations: Best 3 Slots Tomorrow */}
+            <div className="p-3.5 bg-slate-800/60 rounded-xl border border-slate-700 text-xs space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-amber-400 flex items-center space-x-1.5 uppercase text-[10px] tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>AI Smart Recommendation: Best 3 Slots Tomorrow</span>
+                </span>
+                <button
+                  onClick={handleLoadRecommendations}
+                  disabled={loadingRecommendations}
+                  className="text-[10px] font-semibold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded border border-amber-500/30 transition-colors"
+                >
+                  {loadingRecommendations ? 'Refreshing...' : 'Refresh AI Slots'}
+                </button>
+              </div>
+
+              {recommendations.length > 0 ? (
+                <div className="space-y-2">
+                  {recommendations.map((rec: any, idx: number) => (
+                    <div key={rec.slotId} className="bg-slate-900/90 p-2.5 rounded-lg border border-slate-700/80 text-xs space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-white flex items-center space-x-1.5">
+                          <span className="text-amber-400 font-mono">#{idx + 1}</span>
+                          <span>{rec.screenName}</span>
+                        </span>
+                        <span className="text-emerald-400 font-bold font-mono text-[11px]">
+                          {rec.audienceMatchPercent}% Match
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400">
+                        {rec.scheduledTime} • Forecast: <strong className="text-sky-300">{rec.predictedImpressions.toLocaleString()} impressions</strong>
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic">
+                        {rec.reason}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-2 text-slate-400 text-[11px] text-center">
+                  Calculating optimal slots...
+                </div>
+              )}
             </div>
 
             <button

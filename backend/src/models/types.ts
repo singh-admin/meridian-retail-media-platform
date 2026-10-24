@@ -2,6 +2,14 @@ export type FlightDirection = 'A' | 'D';
 export type FlightNature = 'D' | 'I';
 export type FlightStatus = 'SCH' | 'ARR' | 'DEP' | 'CNL' | 'DEL' | 'BRD' | 'GATE' | 'AIR';
 
+export interface Airline {
+  iata: string;
+  icao: string;
+  name: string;
+  nature: FlightNature;
+  handler: string;
+}
+
 export interface Flight {
   aodb_flight_id: string;
   linked_flight_id: string;

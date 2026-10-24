@@ -1,4 +1,4 @@
-import { Flight, Screen, Outlet, Advertiser, Campaign, Creative, Zone, PromoCode, IncidentAlert } from '../models/types.js';
+import { Flight, Screen, Outlet, Advertiser, Campaign, Creative, Zone, PromoCode, IncidentAlert, Airline } from '../models/types.js';
 
 export const AIRLINES = [
   { iata: 'XD', icao: 'SKJ', name: 'Skylark Air', nature: 'D' as const, handler: 'Skylark self-handling' },
@@ -64,6 +64,7 @@ export function generateSeedData(): {
   campaigns: Campaign[];
   promos: PromoCode[];
   incidents: IncidentAlert[];
+  airlines: Airline[];
 } {
   // 1. Generate Zones
   const zones: Zone[] = [
@@ -781,7 +782,8 @@ export function generateSeedData(): {
   const baseDate = '2026-10-14';
   let flightSeq = 100300;
 
-  for (let minute = 0; minute < 1440; minute += 3) {
+  for (let i = 0; i < 900; i++) {
+    const minute = Math.floor((i / 900) * 1440);
     flightSeq++;
     const isArrival = flightSeq % 2 === 0;
     const airline = AIRLINES[flightSeq % AIRLINES.length];
@@ -850,6 +852,7 @@ export function generateSeedData(): {
     outlets,
     campaigns,
     promos,
-    incidents
+    incidents,
+    airlines: AIRLINES
   };
 }

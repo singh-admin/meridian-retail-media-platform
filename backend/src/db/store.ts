@@ -9,7 +9,8 @@ import {
   IncidentAlert,
   DecisionAudit,
   RuleEngineSettings,
-  FeedHealthStatus
+  FeedHealthStatus,
+  Airline
 } from '../models/types.js';
 import { generateSeedData } from './seedData.js';
 
@@ -23,6 +24,7 @@ export class DataStore {
   private outlets: Map<string, Outlet> = new Map();
   private campaigns: Map<string, Campaign> = new Map();
   private promos: Map<string, PromoCode> = new Map();
+  private airlines: Map<string, Airline> = new Map();
   private incidents: IncidentAlert[] = [];
   private decisions: DecisionAudit[] = [];
 
@@ -80,6 +82,9 @@ export class DataStore {
 
     this.promos.clear();
     for (const p of data.promos) this.promos.set(p.code, p);
+
+    this.airlines.clear();
+    for (const a of data.airlines) this.airlines.set(a.iata, a);
 
     this.incidents = [...data.incidents];
     this.decisions = [];
@@ -192,6 +197,15 @@ export class DataStore {
     return deleted;
   }
 
+  // --- Airlines ---
+  public getAirlines(): Airline[] {
+    return Array.from(this.airlines.values());
+  }
+
+  public getAirlineByIata(iata: string): Airline | undefined {
+    return this.airlines.get(iata);
+  }
+
   // --- Promo Codes ---
   public getPromos(): PromoCode[] {
     return Array.from(this.promos.values());
@@ -207,7 +221,7 @@ export class DataStore {
     return promo;
   }
 
-  public redeemPromo(code: string): { success: boolean; promo?: PromoCode; message: string; outlet?: Outlet } {
+  public redeemPromo(code: string, claimTicketCode?: string): { success: boolean; promo?: PromoCode; message: string; outlet?: Outlet; voucherCode?: string } {
     const promo = this.promos.get(code);
     if (!promo) {
       return { success: false, message: 'Promo code not found or invalid' };
@@ -219,28 +233,34 @@ export class DataStore {
     promo.redemptionCount += 1;
     this.promos.set(code, promo);
 
-    // Update Outlet metrics
+    // Update Outlet metrics (simulated sales linked to redemptions: average basket spend €45)
+    const averageBasketEur = 45.0;
     let outlet = this.outlets.get(promo.outletId);
     if (outlet) {
       outlet = {
         ...outlet,
         todayRedemptions: outlet.todayRedemptions + 1,
-        currentRevenue: outlet.currentRevenue + 45.0 // Average attributed basket spend
+        currentRevenue: outlet.currentRevenue + averageBasketEur
       };
       this.outlets.set(outlet.outletId, outlet);
       this.notify('OUTLET_UPDATED', outlet);
     }
 
-    // Update Campaign metrics
+    // Update Campaign metrics: recalculate ROI = (attributed revenue - campaign spend) / campaign spend
     const campaign = this.campaigns.get(promo.campaignId);
     if (campaign && campaign.historicalStats) {
       campaign.historicalStats.redemptions += 1;
+      const attributedRev = campaign.historicalStats.redemptions * averageBasketEur;
+      const spend = campaign.historicalStats.spend || campaign.budget.spentBudget || 100;
+      campaign.historicalStats.roi = spend > 0 ? Number(((attributedRev - spend) / spend).toFixed(2)) : 1.0;
       this.campaigns.set(campaign.campaignId, campaign);
       this.notify('CAMPAIGN_UPDATED', campaign);
     }
 
-    this.notify('PROMO_REDEEMED', { code, promo, outlet });
-    return { success: true, promo, message: 'Promo code successfully redeemed!', outlet };
+    const issuedVoucher = claimTicketCode || `${code}-V${Math.floor(1000 + Math.random() * 9000)}`;
+
+    this.notify('PROMO_REDEEMED', { code, promo, outlet, voucherCode: issuedVoucher });
+    return { success: true, promo, message: 'Promo code successfully redeemed!', outlet, voucherCode: issuedVoucher };
   }
 
   // --- Decisions Audit Trail ---

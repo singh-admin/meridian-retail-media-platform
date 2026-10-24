@@ -29,6 +29,9 @@ export class SimulationEngine {
   public start(): void {
     if (this.timer) clearInterval(this.timer);
     this.timer = setInterval(() => this.tick(), this.tickIntervalMs);
+    if (this.timer && typeof this.timer.unref === 'function') {
+      this.timer.unref();
+    }
   }
 
   public stop(): void {

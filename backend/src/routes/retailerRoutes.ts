@@ -212,12 +212,12 @@ retailerRouter.post('/promos/share', (req: Request, res: Response) => {
 
 // 10. Redeem Promo Code (Instant synchronization across roles)
 retailerRouter.post('/redeem', (req: Request, res: Response) => {
-  const { code } = req.body;
+  const { code, voucherCode } = req.body;
   if (!code) {
     return res.status(400).json({ error: 'Code is required' });
   }
 
-  const result = store.redeemPromo(String(code).trim());
+  const result = store.redeemPromo(String(code).trim(), voucherCode ? String(voucherCode).trim() : undefined);
   if (!result.success) {
     return res.status(400).json(result);
   }

@@ -113,11 +113,11 @@ export const api = {
     });
     return res.json();
   },
-  async redeemPromo(code: string) {
+  async redeemPromo(code: string, voucherCode?: string) {
     const res = await fetch(`${BASE_URL}/retailer/redeem`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code })
+      body: JSON.stringify({ code, voucherCode })
     });
     return res.json();
   },

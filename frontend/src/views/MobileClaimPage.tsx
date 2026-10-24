@@ -18,11 +18,24 @@ interface MobileClaimPageProps {
 export const MobileClaimPage: React.FC<MobileClaimPageProps> = ({ promoCode }) => {
   const [data, setData] = useState<any>(null);
   const [claimed, setClaimed] = useState(false);
+  const [voucherCode, setVoucherCode] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [familyCode, setFamilyCode] = useState<string | null>(null);
   const [countdownSeconds, setCountdownSeconds] = useState(1720);
 
   useEffect(() => {
+    // Check local storage to remember code on phone without server-side identity tracking
+    try {
+      const stored = localStorage.getItem(`meridian_claimed_${promoCode}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setClaimed(true);
+        setVoucherCode(parsed.voucherCode);
+      }
+    } catch {
+      // Local storage fallback
+    }
+
     api.getPromoClaimData(promoCode).then(setData).catch(console.error);
 
     const timer = setInterval(() => {
@@ -34,9 +47,21 @@ export const MobileClaimPage: React.FC<MobileClaimPageProps> = ({ promoCode }) =
   const handleClaim = async () => {
     setClaiming(true);
     try {
-      const res = await api.redeemPromo(promoCode);
+      // Issue individual claim code per phone scan
+      const uniqueVoucherCode = `${promoCode}-V${Math.floor(1000 + Math.random() * 9000)}`;
+      const res = await api.redeemPromo(promoCode, uniqueVoucherCode);
       if (res.success) {
         setClaimed(true);
+        const codeToDisplay = res.voucherCode || uniqueVoucherCode;
+        setVoucherCode(codeToDisplay);
+        try {
+          localStorage.setItem(`meridian_claimed_${promoCode}`, JSON.stringify({
+            voucherCode: codeToDisplay,
+            claimedAt: new Date().toISOString()
+          }));
+        } catch {
+          // Local storage fallback
+        }
       } else {
         alert(res.message || 'Redemption failed');
       }
@@ -127,7 +152,7 @@ export const MobileClaimPage: React.FC<MobileClaimPageProps> = ({ promoCode }) =
               <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto animate-bounce" />
               <div className="text-sm font-black text-white">VOUCHER CLAIMED SUCCESSFULLY!</div>
               <p className="text-xs text-emerald-200">
-                Present barcode or code <strong className="font-mono text-white text-sm">{promoCode}</strong> to cashier.
+                Present barcode or individual voucher code <strong className="font-mono text-white text-sm">{voucherCode || promoCode}</strong> to cashier.
               </p>
               <div className="text-[10px] text-emerald-400/80 pt-1">
                 ✓ Recorded in real-time in Retailer Dashboard
