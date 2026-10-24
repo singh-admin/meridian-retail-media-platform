@@ -1,6 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
 import { adminRouter } from './routes/adminRoutes.js';
 import { retailerRouter } from './routes/retailerRoutes.js';
@@ -10,6 +13,9 @@ import { screenRouter } from './routes/screenRoutes.js';
 import { simulationRouter } from './routes/simulationRoutes.js';
 import { aiRouter } from './routes/aiRoutes.js';
 import { DataStore } from './db/store.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function createServer() {
   const app = express();
@@ -53,6 +59,25 @@ export function createServer() {
       service: 'Meridian Airport Retail Media Platform'
     });
   });
+
+  // Static Frontend SPA serving (for unified Render / single-service deployments)
+  const possiblePaths = [
+    path.resolve(__dirname, '../../frontend/dist'),
+    path.resolve(process.cwd(), 'frontend/dist'),
+    path.resolve(process.cwd(), '../frontend/dist'),
+    path.resolve(__dirname, '../public')
+  ];
+  const staticPath = possiblePaths.find(p => fs.existsSync(p));
+
+  if (staticPath) {
+    app.use(express.static(staticPath));
+    app.get('*', (req: Request, res: Response, next: NextFunction) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/health') || req.path.startsWith('/ws')) {
+        return next();
+      }
+      res.sendFile(path.join(staticPath, 'index.html'));
+    });
+  }
 
   // WebSocket broadcast on DataStore events (<2s live synchronization)
   const store = DataStore.getInstance();

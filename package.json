@@ -7,6 +7,7 @@
     "build:backend": "npm --prefix backend run build",
     "build:frontend": "npm --prefix frontend run build",
     "build": "npm run build:backend && npm run build:frontend",
+    "start": "node backend/dist/index.js",
     "test": "npm --prefix backend test",
     "dev": "node -e \"const { spawn } = require('child_process'); spawn('npm', ['--prefix', 'backend', 'run', 'dev'], { stdio: 'inherit' }); spawn('npm', ['--prefix', 'frontend', 'run', 'dev'], { stdio: 'inherit' });\""
   },

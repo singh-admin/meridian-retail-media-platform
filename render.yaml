@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: meridian-retail-media-platform
+    runtime: node
+    plan: free
+    buildCommand: npm run install:all && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FLIGHT_SOURCE
+        value: mock-aidx
+      - key: AI_PROVIDER
+        value: offline-template-llm
+    healthCheckPath: /health
