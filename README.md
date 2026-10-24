@@ -129,13 +129,15 @@ Prerequisites: Node.js v20+ and npm installed.
 
 A fully functioning playground URL is mandatory for evaluation and stakeholder demonstrations:
 
-> 🌐 **Live Playground URL**: `https://meridian-retail-media.up.railway.app` *(or your deployed VPS / Railway / Render URL)*
-> *(Note: The application is configured to run identically whether accessed via the deployed URL or locally through Docker Compose).*
+> 🌐 **Live Playground URL**: [https://meridian-retail-media-platform.onrender.com](https://meridian-retail-media-platform.onrender.com)
+> 
+> *(Note: The live deployment is pre-configured with all mock feeds, 902 flights, 180 screens, 25 campaigns, and live WebSocket streaming. The application runs identically whether accessed via the deployed URL or locally through Docker Compose).*
 
-### Deployment Options
-- **Docker Compose Deployment (VPS / DigitalOcean / AWS EC2)**:
+### Deployment Details
+- **Live Cloud Deployment**: Hosted on Render via unified full-stack blueprint (`render.yaml`).
+- **Local / VPS Docker Deployment**:
   Run `docker compose up -d --build`.
-- **Render / Railway / Fly.io**:
+- **Alternative Cloud Deployments (Railway / Fly.io / VPS)**:
   Both Dockerfiles in `backend/` and `frontend/` are self-contained multi-stage builds ready for 1-click container deployments.
 
 ---
