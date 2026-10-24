@@ -96,7 +96,7 @@ test('5. Worked Example: Gate 42 at 14:10 Decision Pipeline Match & Winner', () 
   const { winningCampaign, decision } = DecisionPipeline.evaluateScreen('SC-T2-042', '2026-10-14T14:10:00Z', store);
 
   assert.ok(winningCampaign);
-  assert.strictEqual(winningCampaign.campaignId, 'CAMP-DUTYFREE-PERFUME');
+  assert.strictEqual(winningCampaign!.campaignId, 'CAMP-DUTYFREE-PERFUME');
   assert.strictEqual(decision.antiHallucinationVerified, true);
 
   const rankings = decision.candidateRankings;
@@ -105,15 +105,15 @@ test('5. Worked Example: Gate 42 at 14:10 Decision Pipeline Match & Winner', () 
   const lounge = rankings.find(r => r.campaignId === 'CAMP-LOUNGE-DAYPASS');
 
   assert.ok(perfume);
-  assert.strictEqual(perfume.boostMultiplier, 1.5);
-  assert.ok(perfume.finalScore > 0.5, 'Perfume has strong winning score');
+  assert.strictEqual(perfume!.boostMultiplier, 1.5);
+  assert.ok(perfume!.finalScore > 0.5, 'Perfume has strong winning score');
 
   assert.ok(toys);
-  assert.strictEqual(toys.boostMultiplier, 1.0);
-  assert.ok(perfume.finalScore > toys.finalScore, 'Perfume beats Toy Store with delay boost');
+  assert.strictEqual(toys!.boostMultiplier, 1.0);
+  assert.ok(perfume!.finalScore > toys!.finalScore, 'Perfume beats Toy Store with delay boost');
 
   if (lounge) {
-    assert.ok(toys.finalScore >= lounge.finalScore, 'Toy store beats or equals Lounge day pass');
+    assert.ok(toys!.finalScore >= lounge.finalScore, 'Toy store beats or equals Lounge day pass');
   }
 });
 

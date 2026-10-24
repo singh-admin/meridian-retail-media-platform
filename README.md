@@ -127,7 +127,7 @@ Prerequisites: Node.js v20+ and npm installed.
 
 ## 4. Deployed Playground URL Requirement
 
-As specified in `discussion.md`, a fully functioning playground URL is mandatory for evaluation and stakeholder demonstrations:
+A fully functioning playground URL is mandatory for evaluation and stakeholder demonstrations:
 
 > 🌐 **Live Playground URL**: `https://meridian-retail-media.up.railway.app` *(or your deployed VPS / Railway / Render URL)*
 > *(Note: The application is configured to run identically whether accessed via the deployed URL or locally through Docker Compose).*
@@ -175,7 +175,7 @@ FLIGHT_SOURCE=mock-aidx # or vendor-api
 
 ## 6. The Worked Example: Gate 42 at 14:10 (Reproducible in Demo)
 
-The platform deterministically reproduces the Gate 42 scenario defined in the challenge specification using a documented, reproducible mathematical formula (as clarified in the forum discussion, scores are calculated dynamically rather than hardcoded):
+The platform deterministically reproduces the Gate 42 scenario defined in the challenge specification using a documented, reproducible mathematical formula (scores are calculated dynamically rather than hardcoded):
 
 - **Location**: Terminal 2, Concourse C, Pier 4, **Gate 42** (Totem Screen `SC-T2-042`).
 - **Time**: **14:10 UTC**.
@@ -203,7 +203,7 @@ The platform deterministically reproduces the Gate 42 scenario defined in the ch
 | **Toy Store, Buy 2 Get 1** | Family with Children | Moderate Overlap | 1.0 (Standard) | 0.43 – 0.52 | Next in Rotation |
 | **Business Lounge Day Pass** | Business, Premium Cabin | Low Match to Holiday Gate | 1.0 (Standard) | 0.20 – 0.35 | Filtered to other gates |
 
-### Financial & Operational Definitions (Forum Clarifications)
+### Financial & Operational Definitions
 - **Admin Revenue**: Platform advertising revenue earned from advertiser campaign ad spend.
 - **Retailer Attributed Revenue**: Simulated sales linked to customer promo redemptions (average basket €45).
 - **Campaign ROI**: Calculated consistently as $\frac{\text{Attributed Revenue} - \text{Campaign Spend}}{\text{Campaign Spend}}$.

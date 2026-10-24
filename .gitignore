@@ -9,3 +9,5 @@ coverage/
 .vite/
 *.tsbuildinfo
 submission.zip
+instruction.md
+discussion.md
